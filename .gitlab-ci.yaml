@@ -1,0 +1,59 @@
+stages:
+  - deploy
+
+deploy_helm:
+  stage: deploy
+  tags:
+    - shell
+  rules:
+    - if: '$DEPLOY == "helm"'
+  script:
+    - echo "Helm Deploy, nice)"
+    - helm version
+    - kubectl get nodes
+
+    - echo "Deploy openresty"
+    - helm upgrade --install openresty-release ./openresty-art -n app -f ./openresty-art/my-values.yaml --create-namespace
+
+    - echo "Deploy nginx"
+    - helm upgrade --install nginx-release ./openresty-art -n app -f ./openresty-art/nginx-values.yaml --create-namespace
+
+    - echo "Helm ls"
+    - helm ls -n app
+
+    - echo "K resources in app ns"
+    - kubectl get deploy,pods,svc,ingress -n app
+
+
+deploy_argo:
+  stage: deploy
+  tags:
+    - shell
+  rules:
+    - if: '$DEPLOY == "argo"'
+  before_script:
+    - git config --global user.email "gitlab-runner@example.com"
+    - git config --global user.name "GitLab Runner"
+  script:
+    - echo "Deploy by argocd"
+
+    - echo "Go to argo branch"
+    - git fetch origin argo
+    - git checkout argo
+    - git pull origin argo
+
+    - echo "Change replicaCount in my-values.yaml"
+    - sed -i 's/^replicaCount:.*/replicaCount: 4/' openresty-art/my-values.yaml
+
+    - echo "Show changes"
+    - cat openresty-art/my-values.yaml
+
+    - echo "Commit"
+    - git status
+    - git add openresty-art/my-values.yaml
+    - git commit -m "Update rep count for ArgoCD deploy [ci skip]" || echo "No changes to commit"
+
+    - echo "Push changes"
+    - git push https://oauth2:${GIT_PUSH_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git HEAD:argo
+
+    - echo "Argocd is working"
