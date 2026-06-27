@@ -7,7 +7,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://gitlab.com/slimzsound/helm-argocd-homework
+    repoURL: https://github.com/slimzsound/helm-argocd-homework.git
     targetRevision: argo
     path: openresty-art
     helm:
