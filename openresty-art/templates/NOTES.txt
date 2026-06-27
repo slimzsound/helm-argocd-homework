@@ -1,0 +1,20 @@
+Release name: {{ .Release.Name }}
+
+Application has been deployed.
+
+Image:
+  {{ .Values.image.repository }}:{{ .Values.image.tag }}
+
+Replicas:
+  {{ .Values.replicaCount }}
+
+Service:
+  {{ include "openresty-art.fullname" . }}
+
+Ingress enabled:
+  {{ .Values.ingress.enabled }}
+
+{{- if .Values.ingress.enabled }}
+Ingress host:
+  http://{{ .Values.ingress.host }}
+{{- end }}
