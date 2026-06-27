@@ -8,7 +8,7 @@ spec:
 
   source:
     repoURL: https://gitlab.com/slimzsound/k8s-helm-argocd-homework.git
-    targetRevision: master
+    targetRevision: argo
     path: openresty-art
     helm:
       valueFiles:
@@ -16,7 +16,7 @@ spec:
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: app
+    namespace: argo-app
 
   syncPolicy:
     automated:
